@@ -1,7 +1,7 @@
 angular.module('RedhatAccess.customCaseView', ['RedhatAccess.cases'])
 .controller('customCase', ['$scope', '$location', 'securityService', 'NEW_DEFAULTS', function($scope, $location, securityService, NEW_DEFAULTS) {
-	NEW_DEFAULTS.product = "Red Hat Enterprise Virtualization";
-	NEW_DEFAULTS.version = "3.4.0";
+	NEW_DEFAULTS.product = "Red Hat JBoss Enterprise Application Platform";
+	NEW_DEFAULTS.version = "6.2.0";
 	 $scope.selected = 'open-case';
 	 $scope.openCaseClick = function(){
 		 $location.path('case/new');
