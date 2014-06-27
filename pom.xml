@@ -22,6 +22,6 @@
 	<packaging>pom</packaging>
 
   <modules>
-    <module>redhat-support-plugin-war</module>
+    <module>webapp</module>
   </modules>
 </project>
