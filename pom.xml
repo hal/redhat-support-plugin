@@ -4,7 +4,14 @@
 	<groupId>org.jboss.hal</groupId>
 	<artifactId>redhat-support-plugin-parent</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
-	<build>
+
+    <parent>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-parent</artifactId>
+        <version>14</version>
+    </parent>
+
+    <build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
