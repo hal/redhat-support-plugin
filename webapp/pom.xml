@@ -8,7 +8,7 @@
   <parent>
     <groupId>org.jboss.hal</groupId>
     <artifactId>redhat-support-plugin-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.9.3-SNAPSHOT</version>
   </parent>
 
   <build>
