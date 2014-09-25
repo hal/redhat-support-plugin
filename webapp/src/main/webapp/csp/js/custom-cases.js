@@ -1,5 +1,5 @@
 
-angular.module('RedhatAccess.common').directive('showtab',
+/*angular.module('RedhatAccess.common').directive('showtab',
     function () {
         return {
             link: function (scope, element, attrs) {
@@ -9,7 +9,12 @@ angular.module('RedhatAccess.common').directive('showtab',
                 });
             }
         };
-    });
+    });*/
+
+
+angular.module('RedhatAccess.common').run(
+        ['SECURITY_CONFIG', function (SECURITY_CONFIG) { SECURITY_CONFIG.forceLogin = true; }
+]);
 
 angular.module('RedhatAccess.customCaseView', ['RedhatAccess.cases'])
         .controller('customCase', ['$scope', '$location', 'securityService', 'NEW_DEFAULTS', function($scope, $location, securityService, NEW_DEFAULTS) {
