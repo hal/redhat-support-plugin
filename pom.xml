@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jboss.hal</groupId>
 	<artifactId>redhat-support-plugin-parent</artifactId>
-	<version>0.9.4.Final</version>
+	<version>0.9.4.Final-jboss1</version>
 
     <parent>
         <groupId>org.jboss</groupId>
