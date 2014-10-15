@@ -21,7 +21,7 @@ angular.module('RedhatAccess.customCaseView', ['RedhatAccess.cases'])
             NEW_DEFAULTS.product = "Red Hat JBoss Enterprise Application Platform";
             NEW_DEFAULTS.version = "6.2.0";
             $scope.selected = 'search';
-            $scope.openSearchClick = function(){
+            /*$scope.openSearchClick = function(){
                 $location.path('search');
             };
             $scope.openCaseClick = function(){
@@ -29,7 +29,7 @@ angular.module('RedhatAccess.customCaseView', ['RedhatAccess.cases'])
             };
             $scope.modifyCaseClick = function(){
                 $location.path('case/list');
-            };
+            };*/
             $scope.init = function () {
                 securityService.validateLogin(true);
                 if($location.$$path == '/case/list'){
