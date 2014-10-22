@@ -15,11 +15,12 @@
 
 <script src="js/jquery.min.js"></script>
 <script src="js/angular.min.js"></script>
+<script src="js/redhat_access_angular_ui-deps.js"></script>
 <script src="js/redhat_access_angular_ui.js"></script>
 <script src="js/custom-cases.js"></script>
 
 <div ng-app="RedhatAccess.customCaseView">
-    <!--div class="eap-tabs text-center">
+    <div class="eap-tabs text-center">
         <div class="btn-group" ng-controller="customCase"
              data-ng-init="init()">
             <button type="button" class="btn btn-sm btn-default"
@@ -32,13 +33,7 @@
                     ng-click="modifyCaseClick()" ng-model="selected"
                     btn-radio="'modify-case'">Modify Case</button>
         </div>
-    </div-->
-
-   <!-- <ul class="nav nav-tabs" role="tablist">
-      <li class="active"><a showtab="" href="#/search">Knowledge Base</a></li>
-      <li><a showtab="" href="#/case/new">Open Case</a></li>
-      <li><a showtab="" href="#/case/list">Modify Case</a></li>
-    </ul>-->
+    </div>
 
     <div id="rha-content" ui-view></div>
 </div>
