@@ -1,4 +1,4 @@
-/*! redhat_access_angular_ui - v0.9.9 - 2014-10-15
+/*! redhat_access_angular_ui - v0.9.9 - 2014-10-23
  * Copyright (c) 2014 ;
  * Licensed 
  */

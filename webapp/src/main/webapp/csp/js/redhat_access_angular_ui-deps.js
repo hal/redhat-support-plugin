@@ -1,4 +1,4 @@
-/*! redhat_access_angular_ui - v0.9.9 - 2014-10-15
+/*! redhat_access_angular_ui - v0.9.9 - 2014-10-23
  * Copyright (c) 2014 ;
  * Licensed 
  */
@@ -3327,7 +3327,7 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
         fetchAccountUsers,
         fetchUserChatSession;
 
-    strata.version = '1.1.3';
+    strata.version = '1.1.6';
     redhatClientID = 'stratajs-' + strata.version;
 
     if (window.portal && window.portal.host) {
@@ -3335,7 +3335,7 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
         portalHostname = new Uri(window.portal.host).host();
 
     } else {
-        portalHostname = 'access.devgssci.devlab.phx1.redhat.com';
+        portalHostname = 'access.redhat.com';
     }
 
     if(localStorage && localStorage.getItem('portalHostname')) {
@@ -3393,9 +3393,8 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
 
     strata.clearCredentials = function () {
         strata.clearBasicAuth();
-        strata.clearCookieAuth().always(function() {
-            authedUser = {};
-        });
+        strata.clearCookieAuth();
+        authedUser = {};
     };
 
     strata.clearBasicAuth = function () {
@@ -3405,7 +3404,14 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
     };
 
     strata.clearCookieAuth = function () {
-        return $.post('https://signout-redhataccess.itos.redhat.com');
+        var logoutFrame = document.getElementById('rhLogoutFrame');
+        if (!logoutFrame) {
+            // First time logging out.
+            $('body').append('<iframe id="rhLogoutFrame" src="https://' + portalHostname + '/logout" name="rhLogoutFrame" style="display: none;"></iframe>');
+        } else {
+            // Will force the iframe to reload
+            logoutFrame.src = logoutFrame.src;
+        }
     };
 
 
@@ -3563,7 +3569,6 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
             url: strataHostname.clone().setPath('/rs/users/current'),
             headers: {
                 accept: 'application/vnd.redhat.user+json'
-               
             },
             success: function (response) {
                 response.loggedInUser = response.first_name + ' ' + response.last_name;
@@ -3571,9 +3576,8 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
             },
             error: function () {
                 strata.clearBasicAuth();
-                strata.clearCookieAuth().always(function() {
-                    loginHandler(false);
-                });
+                strata.clearCookieAuth();
+                loginHandler(false);
             }
         });
         $.ajax(checkCredentials);
@@ -3646,7 +3650,7 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
     strata.users.get = function (onSuccess, onFailure, userId) {
         if (!$.isFunction(onSuccess)) { throw 'onSuccess callback must be a function'; }
         if (!$.isFunction(onFailure)) { throw 'onFailure callback must be a function'; }
-        if (userId === undefined) { 
+        if (userId === undefined) {
             userId = 'current';
         }
 
@@ -3654,7 +3658,6 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
             url: strataHostname.clone().setPath('/rs/users/' + userId),
             headers: {
                 accept: 'application/vnd.redhat.user+json'
-               
             },
             success: function (response) {
                 onSuccess(response);
@@ -3677,7 +3680,6 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
             method: 'POST',
             headers: {
                 accept: 'application/json'
-               
             },
             success: function (response) {
                 onSuccess(response);
@@ -3942,9 +3944,18 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
             method: 'POST',
             contentType: 'application/json',
             success: function (response, status, xhr) {
-                //Created case comment data is in the XHR
-                var commentnum = xhr.getResponseHeader('Location');
-                commentnum = commentnum.split('/').pop();
+                var commentnum;
+                if (response.id !== undefined){
+                    //For some reason the comment object is being returned in IE8
+                    commentnum = response.id;
+                } else if (response.location !== undefined && response.location[0] !== undefined){
+                    commentnum = response.location[0];
+                    commentnum = commentnum.split('/').pop();
+                } else{
+                    //Created case comment data is in the XHR
+                    commentnum = xhr.getResponseHeader('Location');
+                    commentnum = commentnum.split('/').pop();
+                }
                 onSuccess(commentnum);
             },
             error: function (xhr, reponse, status) {
@@ -4116,9 +4127,15 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
             method: 'POST',
             contentType: 'application/json',
             success: function (response, status, xhr) {
-                //Created case data is in the XHR
-                var casenum = xhr.getResponseHeader('Location');
-                casenum = casenum.split('/').pop();
+                 //Created case data is in the XHR
+                var casenum;
+                if (response.location !== undefined && response.location[0] !== undefined){
+                    casenum = response.location[0];
+                    casenum = casenum.split('/').pop();
+                } else{
+                    casenum = xhr.getResponseHeader('Location');
+                    casenum = casenum.split('/').pop();
+                }
                 onSuccess(casenum);
             },
             error: function (xhr, reponse, status) {
@@ -4510,8 +4527,7 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
         var url = strataHostname.clone().setPath('/rs/products/contact/' + ssoUserName);
         if (ssoUserName === undefined) {
             url = strataHostname.clone().setPath('/rs/products');
-        } 
-
+        }
 
         listProducts = $.extend({}, baseAjaxParams, {
             url: url,
