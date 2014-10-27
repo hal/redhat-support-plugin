@@ -1,4 +1,4 @@
-/*! redhat_access_angular_ui - v0.9.9 - 2014-10-23
+/*! redhat_access_angular_ui - v0.9.34 - 2014-10-27
  * Copyright (c) 2014 ;
  * Licensed 
  */
@@ -3327,7 +3327,7 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
         fetchAccountUsers,
         fetchUserChatSession;
 
-    strata.version = '1.1.6';
+    strata.version = '1.1.7';
     redhatClientID = 'stratajs-' + strata.version;
 
     if (window.portal && window.portal.host) {
@@ -3613,15 +3613,21 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
         $.ajax(getSolutionsFromText);
     };
 
-    strata.recommendations = function (data, onSuccess, onFailure, limit) {
+    strata.recommendations = function (data, onSuccess, onFailure, limit, highlight, highlightTags) {
         if (!$.isFunction(onSuccess)) { throw 'onSuccess callback must be a function'; }
         if (!$.isFunction(onFailure)) { throw 'onFailure callback must be a function'; }
         if (data === undefined) { data = ''; }
         if (limit === undefined) { limit = 50; }
+        if (highlight === undefined) { highlight = false; }
+
+        var tmpUrl = strataHostname.clone().setPath('/rs/problems')
+                .addQueryParam('limit', limit).addQueryParam('highlight', highlight);
+        if(highlightTags !== undefined){
+            tmpUrl.addQueryParam('highlightTags', highlightTags);
+        }
 
         var getRecommendationsFromText = $.extend({}, baseAjaxParams, {
-            url: strataHostname.clone().setPath('/rs/problems')
-                .addQueryParam('limit', limit),
+            url: tmpUrl,
             data: data,
             type: 'POST',
             method: 'POST',
@@ -14109,6 +14115,116 @@ angular.module('ngTable').run(['$templateCache', function ($templateCache) {
     return app;
 }));
 angular.module("gettext",[]),angular.module("gettext").constant("gettext",function(a){return a}),angular.module("gettext").factory("gettextCatalog",["gettextPlurals","$http","$cacheFactory",function(a,b,c){var d,e=function(a){return d.debug&&d.currentLanguage!==d.baseLanguage?"[MISSING]: "+a:a};return d={debug:!1,strings:{},baseLanguage:"en",currentLanguage:"en",cache:c("strings"),setStrings:function(a,b){var c,d;this.strings[a]||(this.strings[a]={});for(c in b)d=b[c],this.strings[a][c]="string"==typeof d?[d]:d},getStringForm:function(a,b){var c=this.strings[this.currentLanguage]||{},d=c[a]||[];return d[b]},getString:function(a){return this.getStringForm(a,0)||e(a)},getPlural:function(b,c,d){var f=a(this.currentLanguage,b);return this.getStringForm(c,f)||e(1===b?c:d)},loadRemote:function(a){return b({method:"GET",url:a,cache:d.cache}).success(function(a){for(var b in a)d.setStrings(b,a[b])})}}}]),angular.module("gettext").directive("translate",["gettextCatalog","$interpolate","$parse","$compile",function(a,b,c,d){var e=function(){return String.prototype.trim?function(a){return"string"==typeof a?a.trim():a}:function(a){return"string"==typeof a?a.replace(/^\s*/,"").replace(/\s*$/,""):a}}();return{transclude:"element",priority:499,compile:function(f,g,h){return function(f,i){var j=function(a,b,c){if(!a)throw new Error("You should add a "+b+" attribute whenever you add a "+c+" attribute.")};if(j(!g.translatePlural||g.translateN,"translate-n","translate-plural"),j(!g.translateN||g.translatePlural,"translate-plural","translate-n"),g.ngIf)throw new Error("You should not combine translate with ng-if, this will lead to problems.");if(g.ngSwitchWhen)throw new Error("You should not combine translate with ng-switch-when, this will lead to problems.");var k=c(g.translateN),l=null;h(f,function(c){var h=e(c.html());return c.removeAttr("translate"),i.replaceWith(c),f.$watch(function(){var e,i=c.html();g.translatePlural?(f=l||(l=f.$new()),f.$count=k(f),e=a.getPlural(f.$count,h,g.translatePlural)):e=a.getString(h);var j=b(e)(f);return i!==j?(c.html(j),void 0!==g.translateCompile&&d(c.contents())(f),c):void 0})})}}}}]),angular.module("gettext").filter("translate",["gettextCatalog","$interpolate","$parse",function(a){return function(b){return a.getString(b)}}]),angular.module("gettext").factory("gettextPlurals",function(){return function(a,b){switch(a){case"ay":case"bo":case"cgg":case"dz":case"fa":case"id":case"ja":case"jbo":case"ka":case"kk":case"km":case"ko":case"ky":case"lo":case"ms":case"my":case"sah":case"su":case"th":case"tt":case"ug":case"vi":case"wo":case"zh":return 0;case"is":return b%10!=1||b%100==11?1:0;case"jv":return 0!=b?1:0;case"mk":return 1==b||b%10==1?0:1;case"ach":case"ak":case"am":case"arn":case"br":case"fil":case"fr":case"gun":case"ln":case"mfe":case"mg":case"mi":case"oc":case"pt_BR":case"tg":case"ti":case"tr":case"uz":case"wa":case"zh":return b>1?1:0;case"lv":return b%10==1&&b%100!=11?0:0!=b?1:2;case"lt":return b%10==1&&b%100!=11?0:b%10>=2&&(10>b%100||b%100>=20)?1:2;case"be":case"bs":case"hr":case"ru":case"sr":case"uk":return b%10==1&&b%100!=11?0:b%10>=2&&4>=b%10&&(10>b%100||b%100>=20)?1:2;case"mnk":return 0==b?0:1==b?1:2;case"ro":return 1==b?0:0==b||b%100>0&&20>b%100?1:2;case"pl":return 1==b?0:b%10>=2&&4>=b%10&&(10>b%100||b%100>=20)?1:2;case"cs":case"sk":return 1==b?0:b>=2&&4>=b?1:2;case"sl":return b%100==1?1:b%100==2?2:b%100==3||b%100==4?3:0;case"mt":return 1==b?0:0==b||b%100>1&&11>b%100?1:b%100>10&&20>b%100?2:3;case"gd":return 1==b||11==b?0:2==b||12==b?1:b>2&&20>b?2:3;case"cy":return 1==b?0:2==b?1:8!=b&&11!=b?2:3;case"kw":return 1==b?0:2==b?1:3==b?2:3;case"ga":return 1==b?0:2==b?1:7>b?2:11>b?3:4;case"ar":return 0==b?0:1==b?1:2==b?2:b%100>=3&&10>=b%100?3:b%100>=11?4:5;default:return 1!=b?1:0}}});
+// Generated by CoffeeScript 1.6.2
+(function() {
+  var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+  angular.module('localytics.directives', []);
+
+  angular.module('localytics.directives').directive('chosen', function() {
+    var CHOSEN_OPTION_WHITELIST, NG_OPTIONS_REGEXP, isEmpty, snakeCase;
+
+    NG_OPTIONS_REGEXP = /^\s*(.*?)(?:\s+as\s+(.*?))?(?:\s+group\s+by\s+(.*))?\s+for\s+(?:([\$\w][\$\w]*)|(?:\(\s*([\$\w][\$\w]*)\s*,\s*([\$\w][\$\w]*)\s*\)))\s+in\s+(.*?)(?:\s+track\s+by\s+(.*?))?$/;
+    CHOSEN_OPTION_WHITELIST = ['noResultsText', 'allowSingleDeselect', 'disableSearchThreshold', 'disableSearch', 'enableSplitWordSearch', 'inheritSelectClasses', 'maxSelectedOptions', 'placeholderTextMultiple', 'placeholderTextSingle', 'searchContains', 'singleBackstrokeDelete', 'displayDisabledOptions', 'displaySelectedOptions', 'width'];
+    snakeCase = function(input) {
+      return input.replace(/[A-Z]/g, function($1) {
+        return "_" + ($1.toLowerCase());
+      });
+    };
+    isEmpty = function(value) {
+      var key;
+
+      if (angular.isArray(value)) {
+        return value.length === 0;
+      } else if (angular.isObject(value)) {
+        for (key in value) {
+          if (value.hasOwnProperty(key)) {
+            return false;
+          }
+        }
+      }
+      return true;
+    };
+    return {
+      restrict: 'A',
+      require: '?ngModel',
+      terminal: true,
+      link: function(scope, element, attr, ngModel) {
+        var chosen, defaultText, disableWithMessage, empty, initOrUpdate, match, options, origRender, removeEmptyMessage, startLoading, stopLoading, valuesExpr, viewWatch;
+
+        element.addClass('localytics-chosen');
+        options = scope.$eval(attr.chosen) || {};
+        angular.forEach(attr, function(value, key) {
+          if (__indexOf.call(CHOSEN_OPTION_WHITELIST, key) >= 0) {
+            return options[snakeCase(key)] = scope.$eval(value);
+          }
+        });
+        startLoading = function() {
+          return element.addClass('loading').attr('disabled', true).trigger('chosen:updated');
+        };
+        stopLoading = function() {
+          return element.removeClass('loading').attr('disabled', false).trigger('chosen:updated');
+        };
+        chosen = null;
+        defaultText = null;
+        empty = false;
+        initOrUpdate = function() {
+          if (chosen) {
+            return element.trigger('chosen:updated');
+          } else {
+            chosen = element.chosen(options).data('chosen');
+            return defaultText = chosen.default_text;
+          }
+        };
+        removeEmptyMessage = function() {
+          empty = false;
+          return element.attr('data-placeholder', defaultText);
+        };
+        disableWithMessage = function() {
+          empty = true;
+          return element.attr('data-placeholder', chosen.results_none_found).attr('disabled', true).trigger('chosen:updated');
+        };
+        if (ngModel) {
+          origRender = ngModel.$render;
+          ngModel.$render = function() {
+            origRender();
+            return initOrUpdate();
+          };
+          if (attr.multiple) {
+            viewWatch = function() {
+              return ngModel.$viewValue;
+            };
+            scope.$watch(viewWatch, ngModel.$render, true);
+          }
+        } else {
+          initOrUpdate();
+        }
+        attr.$observe('disabled', function() {
+          return element.trigger('chosen:updated');
+        });
+        if (attr.ngOptions && ngModel) {
+          match = attr.ngOptions.match(NG_OPTIONS_REGEXP);
+          valuesExpr = match[7];
+          return scope.$watchCollection(valuesExpr, function(newVal, oldVal) {
+            if (angular.isUndefined(newVal)) {
+              return startLoading();
+            } else {
+              if (empty) {
+                removeEmptyMessage();
+              }
+              stopLoading();
+              if (isEmpty(newVal)) {
+                return disableWithMessage();
+              }
+            }
+          });
+        }
+      }
+    };
+  });
+
+}).call(this);
+
 /**
  * @author Jason Dobry <jason.dobry@gmail.com>
  * @file angular-cache.js
