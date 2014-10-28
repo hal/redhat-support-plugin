@@ -22,17 +22,7 @@
 	</div>
 
 	<script>
-		var fetchVersionString = {
-				dataType: 'json',
-			    contentType: 'application/json',
-		        url: "configuration",
-		        type: "GET",
-		        method: "GET",
-		        success: function (response) {
-		            strata.setRedhatClientID(response.userAgent);
-		        }
-		    };
-		    $.ajax(fetchVersionString);
+        strata.setRedhatClientID("EAP 6.x");
 	</script>
 </body>
 </html>
