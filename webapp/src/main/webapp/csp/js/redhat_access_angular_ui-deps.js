@@ -1,4 +1,4 @@
-/*! redhat_access_angular_ui - v0.9.34 - 2014-10-27
+/*! redhat_access_angular_ui - v0.9.59 - 2014-11-17
  * Copyright (c) 2014 ;
  * Licensed 
  */
@@ -3303,6 +3303,7 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
         filterCases,
         createAttachment,
         deleteAttachment,
+        updateOwner,
         listCaseAttachments,
         getSymptomsFromText,
         listGroups,
@@ -3327,7 +3328,7 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
         fetchAccountUsers,
         fetchUserChatSession;
 
-    strata.version = '1.1.7';
+    strata.version = '1.1.15';
     redhatClientID = 'stratajs-' + strata.version;
 
     if (window.portal && window.portal.host) {
@@ -3628,10 +3629,60 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
 
         var getRecommendationsFromText = $.extend({}, baseAjaxParams, {
             url: tmpUrl,
-            data: data,
+            data: JSON.stringify(data),
             type: 'POST',
             method: 'POST',
-            contentType: 'text/plain',
+            contentType: 'application/json',
+            headers: {
+                Accept: 'application/vnd.redhat.json.suggestions'
+            },
+            success: function (response) {
+                if(response.recommendation !== undefined){
+                    var suggestedRecommendations = response.recommendation;
+                    onSuccess(suggestedRecommendations);
+                } else {
+                    onSuccess([]);
+                }
+            },
+            error: function (xhr, reponse, status) {
+                onFailure('Error ' + xhr.status + ' ' + xhr.statusText, xhr, reponse, status);
+            }
+        });
+        $.ajax(getRecommendationsFromText);
+    };
+
+    //TODO rip out when strata fixes endpoint
+    strata.recommendationsXmlHack = function (data, onSuccess, onFailure, limit, highlight, highlightTags) {
+        if (!$.isFunction(onSuccess)) { throw 'onSuccess callback must be a function'; }
+        if (!$.isFunction(onFailure)) { throw 'onFailure callback must be a function'; }
+        if (data === undefined) { data = ''; }
+        if (limit === undefined) { limit = 50; }
+        if (highlight === undefined) { highlight = false; }
+
+        var tmpUrl = strataHostname.clone().setPath('/rs/problems')
+                .addQueryParam('limit', limit).addQueryParam('highlight', highlight);
+        if(highlightTags !== undefined){
+            tmpUrl.addQueryParam('highlightTags', highlightTags);
+        }
+
+        var xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><case xmlns=\"http://www.redhat.com/gss/strata\">";
+        if(data.product !== undefined){
+            xmlString = xmlString.concat("<product>" + data.product + "</product>");
+        }if(data.version !== undefined){
+            xmlString = xmlString.concat("<version>" + data.version + "</version>");
+        }if(data.summary !== undefined){
+            xmlString = xmlString.concat("<summary>" + data.summary + "</summary>");
+        }if(data.description !== undefined){
+            xmlString = xmlString.concat("<description>" + data.description + "</description>");
+        }
+        xmlString = xmlString.concat("</case>");
+
+        var getRecommendationsFromText = $.extend({}, baseAjaxParams, {
+            url: tmpUrl,
+            data: xmlString,
+            type: 'POST',
+            method: 'POST',
+            contentType: 'application/xml',
             headers: {
                 Accept: 'application/vnd.redhat.json.suggestions'
             },
@@ -3834,6 +3885,7 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
     strata.cases.attachments = {};
     strata.cases.comments = {};
     strata.cases.notified_users = {};
+    strata.cases.owner = {};
 
     //Retrieve a case
     strata.cases.get = function (casenum, onSuccess, onFailure) {
@@ -4184,6 +4236,9 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
             },
             success: function (response) {
                 onSuccess(response);
+            },
+            error: function (xhr, reponse, status) {
+                onFailure('Error ' + xhr.status + ' ' + xhr.statusText, xhr, reponse, status);
             }
         });
         $.ajax(updateCase);
@@ -4276,6 +4331,28 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
         $.ajax(deleteAttachment);
     };
 
+    //Change the case owner
+    strata.cases.owner.update = function (casenum, ssoUserName, onSuccess, onFailure) {
+        //Default parameter value
+        if (!$.isFunction(onSuccess)) { throw 'onSuccess callback must be a function'; }
+        if (!$.isFunction(onFailure)) { throw 'onFailure callback must be a function'; }
+        if (casenum === undefined) { onFailure('casenum must be defined'); }
+
+        var url = strataHostname.clone().setPath('/rs/internal/cases/' + casenum + '/changeowner').addQueryParam('contactSsoName', ssoUserName.toString());
+
+        updateOwner = $.extend({}, baseAjaxParams, {
+            url: url,
+            type: 'POST',
+            method: 'POST',
+            contentType: false,
+            success: onSuccess,
+            error: function (xhr, reponse, status) {
+                onFailure('Error ' + xhr.status + ' ' + xhr.statusText, xhr, reponse, status);
+            }
+        });
+        $.ajax(updateOwner);
+    };
+
     //Base for symptoms
     strata.symptoms = {};
 
@@ -4360,12 +4437,16 @@ this.MarkdownExtra_Parser = MarkdownExtra_Parser;
             success: onSuccess,
             statusCode: {
                 201: function(response) {
-                    var locationHeader = response.getResponseHeader('Location');
-                    var groupNumber =
-                        locationHeader.slice(locationHeader.lastIndexOf('/') + 1);
+                    var groupNumber;
+                    if(response !== null){
+                        var locationHeader = response.getResponseHeader('Location');
+                        groupNumber =
+                            locationHeader.slice(locationHeader.lastIndexOf('/') + 1);
+                    }
                     onSuccess(groupNumber);
                 },
                 400: throwError,
+                409: throwError,
                 500: throwError
             }
         });
