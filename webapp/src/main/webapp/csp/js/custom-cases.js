@@ -6,10 +6,12 @@ angular.module('RedhatAccess.common').run(
         }]
 );
 
+angular.module('RedhatAccess.cases').value('NEW_DEFAULTS',
+    { 'product': 'Red Hat JBoss Enterprise Application Platform', 'version': '6.4.0' }
+);
+
 angular.module('RedhatAccess.customCaseView', ['RedhatAccess.cases'])
-        .controller('customCase', ['$scope', '$location', 'securityService', 'NEW_DEFAULTS', function($scope, $location, securityService, NEW_DEFAULTS) {
-            NEW_DEFAULTS.product = "Red Hat JBoss Enterprise Application Platform";
-            NEW_DEFAULTS.version = "6.2.0";
+        .controller('customCase', ['$scope', '$location', 'securityService', function($scope, $location, securityService, NEW_DEFAULTS) {
 
             $scope.selected = 'search';
 
